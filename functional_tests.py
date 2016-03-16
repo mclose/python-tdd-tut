@@ -37,22 +37,28 @@ class NewVisitorTest(unittest.TestCase):
         # "1: Buy some coffee pods" as an item in the to-do list
         inputbox.send_keys(Keys.ENTER)
 
+        # import time
+        # time.sleep(10)
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
-        self.assertTrue(
-                any(row.text == '1: Buy some coffee pods' for row in rows),
-                "New to-do item did not appear in table"
-                )
+        self.assertIn('1: Buy some coffee pods', [row.text for row in rows])
         
         # There is still a text box inviting me to add another item. I
         # enter "Make some coffee with a coffee pod"
-        self.fail('Finish the test!')
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Make some coffee with a coffee pod')
+        inputbox.send_keys(Keys.ENTER)
         
         # The page updates again, and now shows both items on the list
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertIn('1: Buy some coffee pods', [row.text for row in rows])
+        self.assertIn('2: Make some coffee with a coffee pod', [row.text for row in rows])
         
         # I wonder whether the site will remmeber my list. I see that the
         # site has generate a unique URL for me -- there is some information
         # on the page that says so.
+        self.fail('Finish the test!')
         
         # I visit the URL and my to-do list is still there.
         
