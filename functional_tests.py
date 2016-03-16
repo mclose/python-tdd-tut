@@ -11,6 +11,11 @@ class NewVisitorTest(unittest.TestCase):
     def tearDown(self):
         self.browser.quit()
 
+    def check_for_row_in_list_table(self, row_text):
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertIn(row_text, [row.text for row in rows])
+
     def test_can_start_a_list_and_retreive_it_later(self):
         # Seems odd to type this here, but oh well.
         # Fun with functional tests or black box testing.
@@ -36,12 +41,7 @@ class NewVisitorTest(unittest.TestCase):
         # When I hit enter, the page updates, and not the page lists
         # "1: Buy some coffee pods" as an item in the to-do list
         inputbox.send_keys(Keys.ENTER)
-
-        # import time
-        # time.sleep(10)
-        table = self.browser.find_element_by_id('id_list_table')
-        rows = table.find_elements_by_tag_name('tr')
-        self.assertIn('1: Buy some coffee pods', [row.text for row in rows])
+        self.check_for_row_in_list_table('1: Buy some coffee pods')
         
         # There is still a text box inviting me to add another item. I
         # enter "Make some coffee with a coffee pod"
@@ -50,10 +50,8 @@ class NewVisitorTest(unittest.TestCase):
         inputbox.send_keys(Keys.ENTER)
         
         # The page updates again, and now shows both items on the list
-        table = self.browser.find_element_by_id('id_list_table')
-        rows = table.find_elements_by_tag_name('tr')
-        self.assertIn('1: Buy some coffee pods', [row.text for row in rows])
-        self.assertIn('2: Make some coffee with a coffee pod', [row.text for row in rows])
+        self.check_for_row_in_list_table('1: Buy some coffee pods')
+        self.check_for_row_in_list_table('2: Make some coffee with a coffee pod')
         
         # I wonder whether the site will remmeber my list. I see that the
         # site has generate a unique URL for me -- there is some information
