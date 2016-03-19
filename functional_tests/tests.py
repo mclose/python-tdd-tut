@@ -1,8 +1,8 @@
+from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-import unittest
 
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
     
     def setUp(self):
         self.browser = webdriver.Firefox()
@@ -21,7 +21,7 @@ class NewVisitorTest(unittest.TestCase):
         # Fun with functional tests or black box testing.
         # M has heard about a new "cool" online to-do app. She goes
         # to check out its homepage.
-        self.browser.get('http://localhost:8000')
+        self.browser.get(self.live_server_url)
         
         # I notice the page title and header mention to-do lists
         self.assertIn('To-Do', self.browser.title)
@@ -61,6 +61,3 @@ class NewVisitorTest(unittest.TestCase):
         # I visit the URL and my to-do list is still there.
         
         # Satisfied it is saved, I move on to other things.
-
-if __name__ == '__main__':
-    unittest.main(warnings='ignore')
