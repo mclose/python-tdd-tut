@@ -41,6 +41,8 @@ class NewVisitorTest(LiveServerTestCase):
         # When I hit enter, the page updates, and not the page lists
         # "1: Buy some coffee pods" as an item in the to-do list
         inputbox.send_keys(Keys.ENTER)
+        my_list_url = self.browser.current_url
+        self.assertRegex(my_list_url, '/lists/.+')
         self.check_for_row_in_list_table('1: Buy some coffee pods')
         
         # There is still a text box inviting me to add another item. I
@@ -52,10 +54,37 @@ class NewVisitorTest(LiveServerTestCase):
         # The page updates again, and now shows both items on the list
         self.check_for_row_in_list_table('1: Buy some coffee pods')
         self.check_for_row_in_list_table('2: Make some coffee with a coffee pod')
-        
-        # I wonder whether the site will remmeber my list. I see that the
-        # site has generate a unique URL for me -- there is some information
-        # on the page that says so.
+
+        # Now a new user, Francis, comes along to the site.
+
+        ## We user a new browser session to make sure that no information
+        ## of mine is coming through from cookies, etc.
+        self.browser.quit()
+        self.browser = webdriver.Firefox()
+
+        # Francis visits the home page. There is no signe of my
+        # list
+        self.browser.get(self.live_server_url)
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy some coffee pods', page_text)
+        self.assertNotIn('Make some coffee', page_text)
+
+        # Francis starts a new list by entering a new item.
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Buy milk')
+        inputbox.send_keys('Keys.ENTER')
+
+        # Francis gets his own unique URL
+        francis_list_url = self.browser.current_url
+        self.assertRegex(francis_list_url, '/lists/+.')
+        self.assertNotEqual(francis_list_url, my_list_url)
+
+        # Again, there is no trace of Edith's list
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy some coffee pods', page_text)
+        self.assertNotIn('Make some coffee', page_text)
+
+        # Satisfied, they both go back to sleep
         self.fail('Finish the test!')
         
         # I visit the URL and my to-do list is still there.
